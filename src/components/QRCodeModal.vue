@@ -5,7 +5,7 @@ import Dialog from '@/components/ui/dialog/Dialog.vue'
 import Button from '@/components/ui/button/Button.vue'
 import type { CustomerOrder } from '@/types/customer'
 import { formatDate } from '@/lib/utils'
-import { Download, Printer, QrCode as QrIcon, CheckCircle2, User, Package, Calendar, MapPin, Phone, ImageIcon } from 'lucide-vue-next'
+import { Download, Printer, QrCode as QrIcon, CheckCircle2, User, Package, Calendar, Phone, ImageIcon } from 'lucide-vue-next'
 
 interface Props {
   open: boolean
@@ -156,18 +156,11 @@ const copyTracking = () => {
             <span class="font-medium text-slate-800">{{ formatDate(customer.orderDate) }}</span>
           </div>
 
-          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div class="flex items-center justify-between border-slate-100">
             <span class="text-slate-500 flex items-center gap-2">
               <Phone class="w-4 h-4 text-blue-600" /> Số Điện Thoại:
             </span>
             <span class="font-medium text-slate-800">{{ customer.phone || 'Chưa cập nhật' }}</span>
-          </div>
-
-          <div v-if="customer.address" class="flex items-start justify-between">
-            <span class="text-slate-500 flex items-center gap-2 shrink-0">
-              <MapPin class="w-4 h-4 text-blue-600" /> Địa Chỉ:
-            </span>
-            <span class="font-medium text-slate-800 text-right max-w-[220px]">{{ customer.address }}</span>
           </div>
         </div>
       </div>

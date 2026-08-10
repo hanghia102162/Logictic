@@ -11,7 +11,6 @@ import {
   Package,
   Calendar,
   Phone,
-  MapPin,
   DollarSign,
   Image as ImageIcon,
   Upload,
@@ -47,7 +46,6 @@ const form = ref<CustomerOrder>({
   qrContent: '',
   orderDate: getTodayString(),
   phone: '',
-  address: '',
   status: 'Pending',
   amount: undefined,
 })
@@ -126,7 +124,6 @@ watch(
           qrContent: '',
           orderDate: getTodayString(),
           phone: '',
-          address: '',
           status: 'Pending',
           amount: undefined,
         }
@@ -371,16 +368,6 @@ const handleSubmit = async () => {
           </label>
           <Input type="number" v-model.number="form.amount" placeholder="Nhập số tiền..." />
         </div>
-      </div>
-
-      <!-- Address -->
-      <div>
-        <label
-          class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1"
-        >
-          <MapPin class="w-3.5 h-3.5 text-blue-600" /> Địa Chỉ Giao Hàng
-        </label>
-        <Input v-model="form.address" placeholder="Nhập địa chỉ giao hàng..." />
       </div>
 
       <!-- Footer Buttons -->

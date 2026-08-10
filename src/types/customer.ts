@@ -8,7 +8,6 @@ export interface CustomerOrder {
   qrContent?: string      // Nội dung mã QR
   orderDate: string       // Ngày đặt hàng (YYYY-MM-DD)
   phone: string           // Số điện thoại
-  address?: string        // Địa chỉ nhận hàng
   status: OrderStatus     // Trạng thái đơn hàng
   amount?: number         // Giá trị đơn hàng (VND)
   note?: string           // Ghi chú
