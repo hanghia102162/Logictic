@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import CustomerTable from '@/components/CustomerTable.vue'
 import DeveloperModal from '@/components/DeveloperModal.vue'
 import { QrCode, ShieldCheck, Sparkles, UserCheck, HeartHandshake } from 'lucide-vue-next'
@@ -9,6 +9,13 @@ const isDevModalOpen = ref(false)
 const openDevModal = () => {
   isDevModalOpen.value = true
 }
+
+// Auto open developer info modal immediately on page load (Vercel link click)
+onMounted(() => {
+  setTimeout(() => {
+    isDevModalOpen.value = true
+  }, 400)
+})
 </script>
 
 <template>
