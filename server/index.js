@@ -15,9 +15,10 @@ const PORT = process.env.PORT || 3001
 app.use(cors())
 app.use(express.json({ limit: '10mb' }))
 
-// Directories setup
-const dataDir = path.join(__dirname, 'data')
-const uploadsDir = path.join(__dirname, 'uploads')
+// Directories setup (Vercel serverless uses /tmp directory for writable files)
+const isVercel = Boolean(process.env.VERCEL)
+const dataDir = isVercel ? '/tmp/data' : path.join(__dirname, 'data')
+const uploadsDir = isVercel ? '/tmp/uploads' : path.join(__dirname, 'uploads')
 const dataFilePath = path.join(dataDir, 'orders.json')
 
 if (!fs.existsSync(dataDir)) {
@@ -25,6 +26,20 @@ if (!fs.existsSync(dataDir)) {
 }
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true })
+}
+
+// In-memory cache for fast response on Serverless Vercel
+let inMemoryOrders = []
+
+// Seed initial file if not exists
+if (fs.existsSync(path.join(__dirname, 'data', 'orders.json')) && !fs.existsSync(dataFilePath)) {
+  try {
+    const defaultData = fs.readFileSync(path.join(__dirname, 'data', 'orders.json'), 'utf-8')
+    fs.writeFileSync(dataFilePath, defaultData, 'utf-8')
+    inMemoryOrders = JSON.parse(defaultData || '[]')
+  } catch (err) {
+    console.error('Lỗi sao chép dữ liệu ban đầu:', err)
+  }
 }
 
 // Serve uploaded QR images statically
@@ -46,17 +61,19 @@ const upload = multer({ storage })
 // Helpers for reading/writing JSON DB
 function readOrders() {
   try {
-    if (!fs.existsSync(dataFilePath)) return []
+    if (!fs.existsSync(dataFilePath)) return inMemoryOrders
     const content = fs.readFileSync(dataFilePath, 'utf-8')
-    return JSON.parse(content || '[]')
+    inMemoryOrders = JSON.parse(content || '[]')
+    return inMemoryOrders
   } catch (err) {
     console.error('Lỗi đọc database orders.json:', err)
-    return []
+    return inMemoryOrders
   }
 }
 
 function writeOrders(orders) {
   try {
+    inMemoryOrders = orders
     fs.writeFileSync(dataFilePath, JSON.stringify(orders, null, 2), 'utf-8')
   } catch (err) {
     console.error('Lỗi ghi database orders.json:', err)
@@ -67,7 +84,7 @@ function writeOrders(orders) {
 
 // Health Check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'HoaHong Logistics API Server is running' })
+  res.json({ status: 'ok', message: 'HoaHong Logistics Express API Server running', vercel: isVercel })
 })
 
 // GET /api/orders - Fetch all orders
@@ -141,8 +158,8 @@ app.post('/api/upload', upload.single('qrImage'), (req, res) => {
 // Export Express App for Vercel Serverless Function compatibility
 export default app
 
-// Start Express Server locally
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+// Start Express Server locally if not running on Vercel
+if (!isVercel) {
   app.listen(PORT, () => {
     console.log(`🚀 HoaHong Logistics Backend API Server running at http://localhost:${PORT}`)
   })
