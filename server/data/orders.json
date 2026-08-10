@@ -1,0 +1,79 @@
+[
+  {
+    "id": "KH001",
+    "customerName": "Nguyễn Thị Phương Hoa",
+    "trackingCode": "SPX849201948",
+    "qrContent": "QR-KH001-SPX849201948",
+    "orderDate": "2026-08-08",
+    "phone": "0988 123 456",
+    "address": "Số 45 Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
+    "status": "Delivered",
+    "amount": 450000
+  },
+  {
+    "id": "KH002",
+    "customerName": "Trần Văn Bình",
+    "trackingCode": "GHTK982014712",
+    "qrContent": "QR-KH002-GHTK982014712",
+    "orderDate": "2026-08-09",
+    "phone": "0912 345 678",
+    "address": "12 Nguyễn Trãi, Thanh Xuân, Hà Nội",
+    "status": "Shipping",
+    "amount": 320000
+  },
+  {
+    "id": "KH003",
+    "customerName": "Lê Hoàng Minh",
+    "trackingCode": "GHN581940291",
+    "qrContent": "QR-KH003-GHN581940291",
+    "orderDate": "2026-08-10",
+    "phone": "0905 888 999",
+    "address": "88 Nguyễn Văn Linh, Quận Hải Châu, Đà Nẵng",
+    "status": "Pending",
+    "amount": 780000
+  },
+  {
+    "id": "KH004",
+    "customerName": "Phạm Thu Trang",
+    "trackingCode": "VTP993810482",
+    "qrContent": "QR-KH004-VTP993810482",
+    "orderDate": "2026-08-07",
+    "phone": "0977 444 555",
+    "address": "15 Trần Phú, Phường 3, TP. Đà Lạt",
+    "status": "Delivered",
+    "amount": 1250000
+  },
+  {
+    "id": "KH005",
+    "customerName": "Vũ Quốc Khánh",
+    "trackingCode": "SPX771029481",
+    "qrContent": "QR-KH005-SPX771029481",
+    "orderDate": "2026-08-09",
+    "phone": "0933 222 111",
+    "address": "234 Điện Biên Phủ, Quận Bình Thạnh, TP. Hồ Chí Minh",
+    "status": "Shipping",
+    "amount": 510000
+  },
+  {
+    "id": "KH006",
+    "customerName": "Đặng Mai Anh",
+    "trackingCode": "GHN204918234",
+    "qrContent": "QR-KH006-GHN204918234",
+    "orderDate": "2026-08-06",
+    "phone": "0966 555 777",
+    "address": "56 Cầu Giấy, Phường Quan Hoa, Hà Nội",
+    "status": "Cancelled",
+    "amount": 190000
+  },
+  {
+    "id": "KH007",
+    "customerName": "Bùi Đức Thắng",
+    "trackingCode": "GHTK110293847",
+    "qrContent": "QR-KH007-GHTK110293847",
+    "orderDate": "2026-08-10",
+    "phone": "0944 111 333",
+    "address": "102 Hùng Vương, TP. Nha Trang, Khánh Hòa",
+    "status": "Pending",
+    "amount": 630000
+  }
+]

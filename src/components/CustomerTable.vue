@@ -9,6 +9,7 @@ import CustomerFormModal from '@/components/CustomerFormModal.vue'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue'
 import type { CustomerOrder, OrderStatus } from '@/types/customer'
 import { formatDate } from '@/lib/utils'
+import { apiService } from '@/services/api'
 import {
   Search,
   Plus,
@@ -24,10 +25,11 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
-  ArrowUpDown
+  ArrowUpDown,
+  Server
 } from 'lucide-vue-next'
 
-// Initial sample data in Vietnamese context
+// Initial fallback sample data in Vietnamese context
 const defaultCustomers: CustomerOrder[] = [
   {
     id: 'KH001',
@@ -61,55 +63,12 @@ const defaultCustomers: CustomerOrder[] = [
     address: '88 Nguyễn Văn Linh, Quận Hải Châu, Đà Nẵng',
     status: 'Pending',
     amount: 780000
-  },
-  {
-    id: 'KH004',
-    customerName: 'Phạm Thu Trang',
-    trackingCode: 'VTP993810482',
-    qrContent: 'QR-KH004-VTP993810482',
-    orderDate: '2026-08-07',
-    phone: '0977 444 555',
-    address: '15 Trần Phú, Phường 3, TP. Đà Lạt',
-    status: 'Delivered',
-    amount: 1250000
-  },
-  {
-    id: 'KH005',
-    customerName: 'Vũ Quốc Khánh',
-    trackingCode: 'SPX771029481',
-    qrContent: 'QR-KH005-SPX771029481',
-    orderDate: '2026-08-09',
-    phone: '0933 222 111',
-    address: '234 Điện Biên Phủ, Quận Bình Thạnh, TP. Hồ Chí Minh',
-    status: 'Shipping',
-    amount: 510000
-  },
-  {
-    id: 'KH006',
-    customerName: 'Đặng Mai Anh',
-    trackingCode: 'GHN204918234',
-    qrContent: 'QR-KH006-GHN204918234',
-    orderDate: '2026-08-06',
-    phone: '0966 555 777',
-    address: '56 Cầu Giấy, Phường Quan Hoa, Hà Nội',
-    status: 'Cancelled',
-    amount: 190000
-  },
-  {
-    id: 'KH007',
-    customerName: 'Bùi Đức Thắng',
-    trackingCode: 'GHTK110293847',
-    qrContent: 'QR-KH007-GHTK110293847',
-    orderDate: '2026-08-10',
-    phone: '0944 111 333',
-    address: '102 Hùng Vương, TP. Nha Trang, Khánh Hòa',
-    status: 'Pending',
-    amount: 630000
   }
 ]
 
 // Reactive States
 const customers = ref<CustomerOrder[]>([])
+const isLoading = ref(true)
 const searchQuery = ref('')
 const selectedStatus = ref<string>('ALL')
 const sortKey = ref<'id' | 'customerName' | 'orderDate'>('orderDate')
@@ -129,21 +88,25 @@ const customerToDelete = ref<CustomerOrder | null>(null)
 const currentPage = ref(1)
 const itemsPerPage = ref(6)
 
-// Load from LocalStorage on mount
-onMounted(() => {
-  const saved = localStorage.getItem('hoahong_customers')
-  if (saved) {
-    try {
-      customers.value = JSON.parse(saved)
-    } catch {
-      customers.value = defaultCustomers
-    }
-  } else {
+// Fetch data from Backend API on mount
+const fetchOrdersData = async () => {
+  isLoading.value = true
+  try {
+    const data = await apiService.getOrders()
+    customers.value = data && data.length > 0 ? data : defaultCustomers
+  } catch (err) {
+    console.error('Lỗi khi tải đơn hàng:', err)
     customers.value = defaultCustomers
+  } finally {
+    isLoading.value = false
   }
+}
+
+onMounted(() => {
+  fetchOrdersData()
 })
 
-// Save to LocalStorage whenever updated
+// Save backup to LocalStorage
 watch(customers, (newVal) => {
   localStorage.setItem('hoahong_customers', JSON.stringify(newVal))
 }, { deep: true })
@@ -224,25 +187,25 @@ const openDeleteModal = (item: CustomerOrder) => {
   isDeleteModalOpen.value = true
 }
 
-const handleSaveCustomer = (savedCustomer: CustomerOrder) => {
+const handleSaveCustomer = async (savedCustomer: CustomerOrder) => {
   const index = customers.value.findIndex(c => c.id === savedCustomer.id)
   if (index >= 0) {
     customers.value[index] = savedCustomer
+    await apiService.updateOrder(savedCustomer.id, savedCustomer)
   } else {
     customers.value.unshift(savedCustomer)
+    await apiService.createOrder(savedCustomer)
   }
   generateMiniQR(savedCustomer, true)
 }
 
-const handleDeleteCustomer = (id: string) => {
+const handleDeleteCustomer = async (id: string) => {
   customers.value = customers.value.filter(c => c.id !== id)
+  await apiService.deleteOrder(id)
 }
 
 const resetData = () => {
-  if (confirm('Bạn có muốn khôi phục dữ liệu mẫu ban đầu không?')) {
-    customers.value = [...defaultCustomers]
-    localStorage.setItem('hoahong_customers', JSON.stringify(defaultCustomers))
-  }
+  fetchOrdersData()
 }
 
 // Export CSV
@@ -373,18 +336,18 @@ const getStatusBadge = (status: OrderStatus) => {
           <div>
             <h2 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
               Bảng Đơn Hàng & QR Khách Hàng
-              <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">
-                {{ filteredCustomers.length }} bản ghi
+              <span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <Server class="w-3 h-3" /> REST API Backend Connected
               </span>
             </h2>
             <p class="text-xs text-slate-500 mt-0.5">
-              Quản lý danh sách, tự động sinh hoặc tải lên ảnh mã QR vận đơn
+              Đồng bộ dữ liệu thời gian thực từ Express Backend Server API
             </p>
           </div>
 
           <div class="flex items-center gap-2 flex-wrap">
-            <Button variant="outline" size="sm" @click="resetData" title="Khôi phục dữ liệu mẫu">
-              <RefreshCw class="w-4 h-4 mr-1.5" /> Khôi Phục Mẫu
+            <Button variant="outline" size="sm" @click="resetData" title="Tải lại từ Express Server">
+              <RefreshCw class="w-4 h-4 mr-1.5" /> Đồng Bộ Server
             </Button>
 
             <Button variant="outline" size="sm" @click="exportToCSV">
