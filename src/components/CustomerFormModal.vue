@@ -22,9 +22,12 @@ import {
 interface Props {
   open: boolean
   customerToEdit: CustomerOrder | null
+  nextAutoId?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  nextAutoId: 'KH001'
+})
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
@@ -46,7 +49,7 @@ const form = ref<CustomerOrder>({
   phone: '',
   address: '',
   status: 'Pending',
-  amount: 150000,
+  amount: undefined,
 })
 
 const errors = ref<Record<string, string>>({})
@@ -100,7 +103,7 @@ const autoGenerateQRImage = async () => {
   })
   try {
     form.value.qrImage = await QRCode.toDataURL(payload, { width: 300, margin: 1 })
-    form.value.qrContent = `QR-${form.value.id}-${form.value.trackingCode}`
+    form.value.qrContent = `QR-${form.value.id}-${form.value.trackingCode || 'CODE'}`
   } catch (err) {
     console.error('Lỗi sinh ảnh QR:', err)
   }
@@ -114,9 +117,9 @@ watch(
       if (props.customerToEdit) {
         form.value = { ...props.customerToEdit }
       } else {
-        const randomId = 'KH' + Math.floor(100 + Math.random() * 900)
+        // Clear all default values for fresh entry, set auto-increment ID
         form.value = {
-          id: randomId,
+          id: props.nextAutoId || 'KH001',
           customerName: '',
           trackingCode: '',
           qrImage: '',
@@ -125,9 +128,8 @@ watch(
           phone: '',
           address: '',
           status: 'Pending',
-          amount: 250000,
+          amount: undefined,
         }
-        generateRandomTracking()
       }
     }
   },
@@ -142,7 +144,7 @@ const validate = (): boolean => {
     errs.customerName = 'Vui lòng nhập Tên Khách Hàng'
   }
   if (!form.value.trackingCode.trim()) {
-    errs.trackingCode = 'Vui lòng nhập hoặc tự động tạo Mã Vận Đơn'
+    errs.trackingCode = 'Vui lòng nhập hoặc tạo ngẫu nhiên Mã Vận Đơn'
   }
   if (!form.value.orderDate) {
     errs.orderDate = 'Vui lòng chọn Ngày Đặt Hàng'
@@ -168,24 +170,27 @@ const handleSubmit = async () => {
     :open="open"
     @update:open="(val) => emit('update:open', val)"
     :title="customerToEdit ? 'Chỉnh Sửa Đơn Hàng' : 'Thêm Mới Khách Hàng / Đơn Hàng'"
-    description="Nhập thông tin khách hàng và tải lên ảnh mã QR Khách Hàng (Momo, VietQR, ZaloPay...)"
+    description="Nhập thông tin khách hàng mới (Mã ID tự động tăng)"
     max-width="lg"
   >
     <form @submit.prevent="handleSubmit" class="space-y-4 pt-2">
       <!-- Grid 2 columns for ID & Customer Name -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- ID -->
+        <!-- ID (Auto-incremented, disabled editing for new items) -->
         <div>
           <label
-            class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1"
+            class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between"
           >
-            <span class="text-blue-600">#</span> Mã ID Khách Hàng
-            <span class="text-rose-500">*</span>
+            <span class="flex items-center gap-1">
+              <span class="text-blue-600">#</span> Mã ID Khách Hàng
+              <span class="text-rose-500">*</span>
+            </span>
+            <span class="text-[10px] text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">Tự tăng</span>
           </label>
           <Input
             v-model="form.id"
-            placeholder="VD: KH001"
-            :disabled="!!customerToEdit"
+            placeholder="KH001"
+            class="bg-slate-100 font-mono font-bold text-blue-800"
             :class="errors.id ? 'border-rose-400 focus-visible:ring-rose-400' : ''"
           />
           <p v-if="errors.id" class="mt-1 text-xs text-rose-500 font-medium">{{ errors.id }}</p>
@@ -201,7 +206,7 @@ const handleSubmit = async () => {
           </label>
           <Input
             v-model="form.customerName"
-            placeholder="VD: Nguyễn Văn Anh"
+            placeholder="Nhập tên khách hàng..."
             :class="errors.customerName ? 'border-rose-400 focus-visible:ring-rose-400' : ''"
           />
           <p v-if="errors.customerName" class="mt-1 text-xs text-rose-500 font-medium">
@@ -229,7 +234,7 @@ const handleSubmit = async () => {
         </div>
         <Input
           v-model="form.trackingCode"
-          placeholder="VD: SPX84920194"
+          placeholder="Nhập mã vận đơn (VD: SPX84920194)..."
           class="font-mono uppercase font-bold text-blue-900"
           :class="errors.trackingCode ? 'border-rose-400 focus-visible:ring-rose-400' : ''"
         />
@@ -238,7 +243,7 @@ const handleSubmit = async () => {
         </p>
       </div>
 
-      <!-- Image Input area for QR Khách Hàng (Requested feature) -->
+      <!-- Image Input area for QR Khách Hàng -->
       <div>
         <div class="flex items-center justify-between mb-1.5">
           <label
@@ -251,7 +256,7 @@ const handleSubmit = async () => {
             @click="autoGenerateQRImage"
             class="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition-colors"
           >
-            <QrCode class="w-3.5 h-3.5" /> Tự động tạo ảnh QR mẫu
+            <QrCode class="w-3.5 h-3.5" /> Tạo ảnh QR mẫu
           </button>
         </div>
 
@@ -304,7 +309,7 @@ const handleSubmit = async () => {
               Nhấp để chọn ảnh hoặc kéo thả file ảnh QR vào đây
             </p>
             <p class="text-[11px] text-slate-400 mt-0.5">
-              Hỗ trợ các định dạng ảnh PNG, JPG, WEBP, VietQR, QR Ngân hàng
+              Hỗ trợ file PNG, JPG, WEBP, VietQR...
             </p>
           </div>
         </div>
@@ -355,7 +360,7 @@ const handleSubmit = async () => {
           >
             <Phone class="w-3.5 h-3.5 text-blue-600" /> Số Điện Thoại
           </label>
-          <Input v-model="form.phone" placeholder="0912 345 678" />
+          <Input v-model="form.phone" placeholder="Nhập SĐT khách hàng..." />
         </div>
 
         <div>
@@ -364,16 +369,27 @@ const handleSubmit = async () => {
           >
             <DollarSign class="w-3.5 h-3.5 text-blue-600" /> Giá Trị Đơn (VNĐ)
           </label>
-          <Input type="number" v-model.number="form.amount" placeholder="250000" />
+          <Input type="number" v-model.number="form.amount" placeholder="Nhập số tiền..." />
         </div>
       </div>
+
+      <!-- Address -->
+      <div>
+        <label
+          class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1"
+        >
+          <MapPin class="w-3.5 h-3.5 text-blue-600" /> Địa Chỉ Giao Hàng
+        </label>
+        <Input v-model="form.address" placeholder="Nhập địa chỉ giao hàng..." />
+      </div>
+
       <!-- Footer Buttons -->
       <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100 mt-6">
         <Button type="button" variant="outline" @click="emit('update:open', false)">
           Hủy Bỏ
         </Button>
         <Button type="submit" variant="default">
-          {{ customerToEdit ? 'Lưu Thay Đổi' : 'Tạo Đơn Hàng & Ảnh QR' }}
+          {{ customerToEdit ? 'Lưu Thay Đổi' : 'Tạo Đơn Hàng Mới' }}
         </Button>
       </div>
     </form>

@@ -32,6 +32,21 @@ import {
 // Initial fallback sample data
 const defaultCustomers: CustomerOrder[] = []
 
+// Auto-increment ID generator (KH001, KH002, KH003...)
+const nextAutoId = computed(() => {
+  if (!customers.value || customers.value.length === 0) return 'KH001'
+  let maxNum = 0
+  customers.value.forEach(c => {
+    const match = c.id.match(/\d+/)
+    if (match) {
+      const num = parseInt(match[0], 10)
+      if (num > maxNum) maxNum = num
+    }
+  })
+  const nextNum = maxNum + 1
+  return 'KH' + nextNum.toString().padStart(3, '0')
+})
+
 // Reactive States
 const customers = ref<CustomerOrder[]>([])
 const isLoading = ref(true)
@@ -587,6 +602,7 @@ const getStatusBadge = (status: OrderStatus) => {
     <CustomerFormModal
       v-model:open="isFormModalOpen"
       :customer-to-edit="customerToEdit"
+      :next-auto-id="nextAutoId"
       @save="handleSaveCustomer"
     />
 

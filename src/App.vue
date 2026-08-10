@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CustomerTable from '@/components/CustomerTable.vue'
-import { QrCode, Flower2, ShieldCheck, Sparkles } from 'lucide-vue-next'
+import { QrCode, ShieldCheck, Sparkles } from 'lucide-vue-next'
 </script>
 
 <template>
@@ -11,7 +11,7 @@ import { QrCode, Flower2, ShieldCheck, Sparkles } from 'lucide-vue-next'
     <header
       class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs"
     >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 h-16 flex items-center justify-between">
         <!-- Logo & Brand Title -->
         <div class="flex items-center gap-3">
           <div
@@ -22,12 +22,12 @@ import { QrCode, Flower2, ShieldCheck, Sparkles } from 'lucide-vue-next'
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-lg font-extrabold tracking-tight text-slate-900">
-                <span class="text-blue-600">QR Logistics</span>
+                <span class="text-blue-600">QR Logistics Manager</span>
               </h1>
               <span
                 class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200"
               >
-                v1.0 Shadcn UI
+                Full Width Desktop UI
               </span>
             </div>
             <p class="text-xs text-slate-500 hidden sm:block">
@@ -53,15 +53,15 @@ import { QrCode, Flower2, ShieldCheck, Sparkles } from 'lucide-vue-next'
       </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <!-- Main Container - Fullscreen Width on Desktop -->
+    <main class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-6">
       <!-- Main Customer Management Table -->
       <CustomerTable />
     </main>
 
     <!-- Footer -->
     <footer
-      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-6 border-t border-slate-200 text-center text-xs text-slate-400"
+      class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 mt-16 pt-6 border-t border-slate-200 text-center text-xs text-slate-400"
     >
       <p>© 2026 HoaHong QR Logistics Manager. Phát triển với Vue 3, Tailwind CSS & Shadcn/Vue.</p>
     </footer>
