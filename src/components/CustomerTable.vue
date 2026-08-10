@@ -29,42 +29,8 @@ import {
   Server
 } from 'lucide-vue-next'
 
-// Initial fallback sample data in Vietnamese context
-const defaultCustomers: CustomerOrder[] = [
-  {
-    id: 'KH001',
-    customerName: 'Nguyễn Thị Phương Hoa',
-    trackingCode: 'SPX849201948',
-    qrContent: 'QR-KH001-SPX849201948',
-    orderDate: '2026-08-08',
-    phone: '0988 123 456',
-    address: 'Số 45 Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
-    status: 'Delivered',
-    amount: 450000
-  },
-  {
-    id: 'KH002',
-    customerName: 'Trần Văn Bình',
-    trackingCode: 'GHTK982014712',
-    qrContent: 'QR-KH002-GHTK982014712',
-    orderDate: '2026-08-09',
-    phone: '0912 345 678',
-    address: '12 Nguyễn Trãi, Thanh Xuân, Hà Nội',
-    status: 'Shipping',
-    amount: 320000
-  },
-  {
-    id: 'KH003',
-    customerName: 'Lê Hoàng Minh',
-    trackingCode: 'GHN581940291',
-    qrContent: 'QR-KH003-GHN581940291',
-    orderDate: '2026-08-10',
-    phone: '0905 888 999',
-    address: '88 Nguyễn Văn Linh, Quận Hải Châu, Đà Nẵng',
-    status: 'Pending',
-    amount: 780000
-  }
-]
+// Initial fallback sample data
+const defaultCustomers: CustomerOrder[] = []
 
 // Reactive States
 const customers = ref<CustomerOrder[]>([])
@@ -93,10 +59,10 @@ const fetchOrdersData = async () => {
   isLoading.value = true
   try {
     const data = await apiService.getOrders()
-    customers.value = data && data.length > 0 ? data : defaultCustomers
+    customers.value = data || []
   } catch (err) {
     console.error('Lỗi khi tải đơn hàng:', err)
-    customers.value = defaultCustomers
+    customers.value = []
   } finally {
     isLoading.value = false
   }
