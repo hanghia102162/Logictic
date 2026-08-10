@@ -35,11 +35,6 @@ onMounted(() => {
       currentUser.value = null
     }
   }
-
-  // Auto open developer info modal immediately on page load
-  setTimeout(() => {
-    isDevModalOpen.value = true
-  }, 400)
 })
 </script>
 
