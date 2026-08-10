@@ -16,6 +16,10 @@ const openDevModal = () => {
 const handleLoginSuccess = (user: AuthUser) => {
   currentUser.value = user
   localStorage.setItem('hoahong_auth_user', JSON.stringify(user))
+  // Auto open developer info modal immediately after successful login
+  setTimeout(() => {
+    isDevModalOpen.value = true
+  }, 300)
 }
 
 const handleLogout = () => {
