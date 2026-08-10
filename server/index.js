@@ -87,6 +87,32 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'HoaHong Logistics Express API Server running', vercel: isVercel })
 })
 
+// POST /api/login - Authentication Endpoint
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body || {}
+  
+  const validUsers = ['admin', 'admin@logistic.vn', 'hatrongnghia']
+  const isValidUser = validUsers.includes((username || '').toLowerCase().trim())
+  const isValidPassword = password === '123456'
+
+  if (isValidUser && isValidPassword) {
+    return res.json({
+      success: true,
+      user: {
+        username: (username || 'admin').toLowerCase().trim(),
+        email: 'admin@logistic.vn',
+        name: 'Quản Trị Viên (Admin)',
+        role: 'Administrator',
+        token: `token_${Date.now()}_logistics_sec`
+      }
+    })
+  }
+
+  return res.status(401).json({
+    error: 'Tài khoản hoặc mật khẩu không chính xác! (Tài khoản mẫu: admin / Mật khẩu: 123456)'
+  })
+})
+
 // GET /api/orders - Fetch all orders
 app.get('/api/orders', (req, res) => {
   const orders = readOrders()

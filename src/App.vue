@@ -2,16 +2,41 @@
 import { ref, onMounted } from 'vue'
 import CustomerTable from '@/components/CustomerTable.vue'
 import DeveloperModal from '@/components/DeveloperModal.vue'
-import { QrCode, ShieldCheck, Sparkles, UserCheck, HeartHandshake } from 'lucide-vue-next'
+import LoginForm from '@/components/LoginForm.vue'
+import type { AuthUser } from '@/types/auth'
+import { QrCode, ShieldCheck, Sparkles, UserCheck, HeartHandshake, LogOut, User as UserIcon } from 'lucide-vue-next'
 
+const currentUser = ref<AuthUser | null>(null)
 const isDevModalOpen = ref(false)
 
 const openDevModal = () => {
   isDevModalOpen.value = true
 }
 
-// Auto open developer info modal immediately on page load (Vercel link click)
+const handleLoginSuccess = (user: AuthUser) => {
+  currentUser.value = user
+  localStorage.setItem('hoahong_auth_user', JSON.stringify(user))
+}
+
+const handleLogout = () => {
+  if (confirm('Bạn có muốn đăng xuất khỏi hệ thống không?')) {
+    currentUser.value = null
+    localStorage.removeItem('hoahong_auth_user')
+  }
+}
+
 onMounted(() => {
+  // Check for active login session in localStorage
+  const savedUser = localStorage.getItem('hoahong_auth_user')
+  if (savedUser) {
+    try {
+      currentUser.value = JSON.parse(savedUser)
+    } catch {
+      currentUser.value = null
+    }
+  }
+
+  // Auto open developer info modal immediately on page load
   setTimeout(() => {
     isDevModalOpen.value = true
   }, 400)
@@ -43,7 +68,7 @@ onMounted(() => {
               <span
                 class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200"
               >
-                v1.0 Shadcn UI
+                Auth Secured
               </span>
             </div>
             <p class="text-xs text-slate-500 hidden sm:block">
@@ -52,36 +77,51 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Quick System Status & Developer Link -->
+        <!-- Quick System Status, User Avatar & Developer Link -->
         <div class="flex items-center gap-3">
-          <!-- Clickable Developer Link Button (Requested by User) -->
+          <!-- Clickable Developer Link Button -->
           <button
             @click="openDevModal"
-            class="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer"
+            class="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer"
           >
             <Sparkles class="w-3.5 h-3.5 text-amber-300" />
             <span>Hà Trọng Nghĩa (Nhận Làm Web)</span>
           </button>
 
-          <div
-            class="hidden md:flex items-center gap-2 text-xs text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full"
-          >
-            <span class="relative flex h-2 w-2">
-              <span
-                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
-              ></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span class="font-medium">Hệ thống đang hoạt động</span>
+          <!-- User Logged-in Info & Logout -->
+          <div v-if="currentUser" class="flex items-center gap-2">
+            <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200/80 text-xs">
+              <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[10px]">
+                {{ currentUser.username.charAt(0).toUpperCase() }}
+              </div>
+              <div class="hidden md:flex flex-col text-left leading-tight">
+                <span class="font-bold text-slate-900">{{ currentUser.name }}</span>
+                <span class="text-[10px] text-slate-500">{{ currentUser.email }}</span>
+              </div>
+            </div>
+
+            <button
+              @click="handleLogout"
+              class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+              title="Đăng xuất khỏi hệ thống"
+            >
+              <LogOut class="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- Main Container - Fullscreen Width on Desktop -->
+    <!-- Main Container - Login Screen or Dashboard -->
     <main class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-6">
-      <!-- Main Customer Management Table -->
-      <CustomerTable />
+      <!-- Show Login Form if not logged in -->
+      <LoginForm
+        v-if="!currentUser"
+        @login-success="handleLoginSuccess"
+      />
+
+      <!-- Show Dashboard Table if logged in -->
+      <CustomerTable v-else />
     </main>
 
     <!-- Footer with Clickable Developer Credit -->
