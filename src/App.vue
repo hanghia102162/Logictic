@@ -1,6 +1,14 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import CustomerTable from '@/components/CustomerTable.vue'
-import { QrCode, ShieldCheck, Sparkles } from 'lucide-vue-next'
+import DeveloperModal from '@/components/DeveloperModal.vue'
+import { QrCode, ShieldCheck, Sparkles, UserCheck, HeartHandshake } from 'lucide-vue-next'
+
+const isDevModalOpen = ref(false)
+
+const openDevModal = () => {
+  isDevModalOpen.value = true
+}
 </script>
 
 <template>
@@ -15,7 +23,8 @@ import { QrCode, ShieldCheck, Sparkles } from 'lucide-vue-next'
         <!-- Logo & Brand Title -->
         <div class="flex items-center gap-3">
           <div
-            class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-xl shadow-md flex items-center justify-center font-black"
+            class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-xl shadow-md flex items-center justify-center font-black cursor-pointer"
+            @click="openDevModal"
           >
             <QrCode class="w-6 h-6" />
           </div>
@@ -27,7 +36,7 @@ import { QrCode, ShieldCheck, Sparkles } from 'lucide-vue-next'
               <span
                 class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200"
               >
-                Full Width Desktop UI
+                v1.0 Shadcn UI
               </span>
             </div>
             <p class="text-xs text-slate-500 hidden sm:block">
@@ -36,8 +45,17 @@ import { QrCode, ShieldCheck, Sparkles } from 'lucide-vue-next'
           </div>
         </div>
 
-        <!-- Quick System Status Badge -->
+        <!-- Quick System Status & Developer Link -->
         <div class="flex items-center gap-3">
+          <!-- Clickable Developer Link Button (Requested by User) -->
+          <button
+            @click="openDevModal"
+            class="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-sm hover:shadow-md hover:scale-105 transition-all cursor-pointer"
+          >
+            <Sparkles class="w-3.5 h-3.5 text-amber-300" />
+            <span>Hà Trọng Nghĩa (Nhận Làm Web)</span>
+          </button>
+
           <div
             class="hidden md:flex items-center gap-2 text-xs text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full"
           >
@@ -59,11 +77,22 @@ import { QrCode, ShieldCheck, Sparkles } from 'lucide-vue-next'
       <CustomerTable />
     </main>
 
-    <!-- Footer -->
+    <!-- Footer with Clickable Developer Credit -->
     <footer
-      class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 mt-16 pt-6 border-t border-slate-200 text-center text-xs text-slate-400"
+      class="w-full px-4 sm:px-6 lg:px-8 xl:px-12 mt-16 pt-6 border-t border-slate-200 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2"
     >
       <p>© 2026 HoaHong QR Logistics Manager. Phát triển với Vue 3, Tailwind CSS & Shadcn/Vue.</p>
+      
+      <button
+        @click="openDevModal"
+        class="text-blue-600 hover:text-blue-800 font-bold underline underline-offset-4 flex items-center gap-1 transition-colors cursor-pointer"
+      >
+        <HeartHandshake class="w-3.5 h-3.5 text-blue-600" />
+        <span>Hà Trọng Nghĩa nhận làm hộ web theo yêu cầu (Nhấp để xem)</span>
+      </button>
     </footer>
+
+    <!-- Developer Info Modal -->
+    <DeveloperModal v-model:open="isDevModalOpen" />
   </div>
 </template>
